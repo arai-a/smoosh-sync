@@ -146,6 +146,8 @@ class GitHubAPI:
         else:
             headers = {}
 
+        print("@@@@", url)
+
         headers['Content-Type'] = 'application/json'
 
         req = urllib.request.Request(url, json.dumps(data).encode(), headers)

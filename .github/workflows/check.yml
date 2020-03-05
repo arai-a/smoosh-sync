@@ -2,7 +2,7 @@ name: Check Update
 
 on:
   push:
-    branch: master
+    branches: master
 
 jobs:
   check:
