@@ -99,15 +99,16 @@ class RemoteRepository:
         content2 = cls.call('raw-file', '/{}{}'.format(rev2, path))
         FileUtils.write_binary(path2, content2)
 
-        p = subprocess.Popen(['diff', '-U', '8', name1, name2],
+        p = subprocess.Popen(['diff', '-U', '8',
+                              '--label', '{}{}'.format(rev1, path),
+                              '--label', '{}{}'.format(rev2, path),
+                              name1, name2],
                              stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT,
                              cwd='tmp')
         output = p.stdout.read().decode()
         p.wait()
 
-        output = output.replace(name1, '{}{}'.format(rev1, path))
-        output = output.replace(name2, '{}{}'.format(rev2, path))
         return output
 
 
