@@ -21,8 +21,10 @@ jobs:
 
     - name: Check Update and Open Issues
       run: python3 check.py
+      env:
+        POST_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
-    - name: Set git profile
+    - name: Set Git Profile
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
