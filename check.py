@@ -2,8 +2,18 @@
 
 import json
 import os
+import re
 import subprocess
+import sys
 import urllib.request
+
+
+class Logger:
+    def info(s):
+        print('[INFO] {}'.format(s))
+
+        # Flush to make it apeear immediately in automation log.
+        sys.stdout.flush()
 
 
 class FileUtils:
@@ -40,6 +50,7 @@ class Config:
 
     HG_API_URL = __config['hg_api_url']
     GITHUB_API_URL = __config['github_api_url']
+    BMO_URL = __config['bmo_url']
 
     FILES = __config['files']
 
@@ -67,6 +78,10 @@ class RemoteRepository:
     @classmethod
     def get_file_url(cls, rev, path):
         return '{}file/{}{}'.format(Config.HG_API_URL, rev, path)
+
+    @classmethod
+    def get_rev_url(cls, rev):
+        return '{}rev/{}'.format(Config.HG_API_URL, rev)
 
     @classmethod
     def diff(cls, rev1, rev2, path):
@@ -107,25 +122,36 @@ class UpdateChecker:
             status = {}
 
         for path in Config.FILES:
+            Logger.info('Checking {}'.format(path))
+
             logs = RemoteRepository.log('tip', path)
             node = logs[0]['node']
 
             if path in status:
                 prevnode = status[path]
+
+                changesets = []
+                for changeset in logs:
+                    if changeset['node'] == prevnode:
+                        break
+                    changesets.append(changeset)
+
                 if prevnode != node:
                     diff = RemoteRepository.diff(prevnode, node, path)
 
                     result[path] = {
                         'prev': prevnode,
                         'now': node,
+                        'changesets': changesets,
                         'diff': diff
                     }
 
             status[path] = node
 
-        #FileUtils.write(Paths.STATUS_PATH, json.dumps(status))
+        FileUtils.write(Paths.STATUS_PATH, json.dumps(status))
 
         return result
+
 
 class GitHubAPI:
     __API_TOKEN = os.environ.get('POST_TOKEN')
@@ -154,25 +180,90 @@ class GitHubAPI:
 
 
 class IssueOpener:
-    def open(result):
-        for (path, data) in result.items():
-            prev = data['prev']
-            short1 = prev[0:8]
-            now = data['now']
-            short2 = now[0:8]
-            diff = data['diff']
-            url = RemoteRepository.get_file_url(now, path)
+    BUG_PAT = re.compile(r'(bug(?:\s*:\s*|=|\s+)(\d+))', re.I)
 
-            GitHubAPI.post('issues', [], {
-                'title': '{} has been updated {} => {}'.format(
-                    path, short1, short2),
-                'body': """
-{}
+    @classmethod
+    def linkify(cls, text):
+        return cls.BUG_PAT.sub(r'[\1]({}show_bug.cgi?id=\2)'.format(
+            Config.BMO_URL), text)
+
+    @classmethod
+    def open(cls, result):
+        handled_nodes = set()
+        total_changesets = []
+
+        paths = []
+
+        contents = []
+
+        contents.append('# Files')
+        contents.append('')
+
+        for (path, data) in sorted(result.items()):
+            paths.append(path)
+
+            now = data['now']
+            url = RemoteRepository.get_file_url(now, path)
+            contents.append('* [`{}`]({})'.format(path, url))
+
+            for changeset in data['changesets']:
+                node = changeset['node']
+                if node in handled_nodes:
+                    continue
+                handled_nodes.add(node)
+                total_changesets.append(changeset)
+
+        if len(paths) == 0:
+            Logger.info('No changes')
+
+        contents.append('')
+        contents.append('# Changesets')
+        contents.append('')
+
+        latest_node = None
+
+        for changeset in sorted(total_changesets, key=lambda changeset: changeset['pushdate'][0]):
+            if latest_node is None:
+                latest_node = changeset['node']
+            subject = cls.linkify(changeset['desc'].split('\n')[0])
+            contents.append('* {}  '.format(subject))
+            url = RemoteRepository.get_rev_url(changeset['node'])
+            contents.append('  {}'.format(url))
+
+        contents.append('')
+        contents.append('# Diffs')
+        contents.append('')
+
+        for (path, data) in sorted(result.items()):
+            now = data['now']
+            url = RemoteRepository.get_file_url(now, path)
+            diff = data['diff']
+
+            contents.append('## [`{}`]({})'.format(path, url))
+
+            contents.append("""
 ```
-{}
-```
-""".format(url, diff),
-            })
+{}```
+""".format(diff))
+
+        body = '\n'.join(contents)
+
+        if len(paths) > 2:
+            title = '{} and {} more files have been updated'.format(
+                paths[0], len(paths) - 1)
+        elif len(paths) == 2:
+            title = '{} and one more file have been updated'.format(
+                paths[0])
+        else:
+            title = '{} has been updated'.format(
+                paths[0])
+
+        Logger.info('Opening Issue')
+
+        GitHubAPI.post('issues', [], {
+            'title': '{} ({})'.format(title, latest_node[0:8]),
+            'body': body,
+        })
 
 
 result = UpdateChecker.check()
