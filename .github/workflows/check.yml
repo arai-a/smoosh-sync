@@ -1,0 +1,41 @@
+name: Check Update
+
+on:
+  push:
+    branch: master
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Setup Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: "3.7"
+
+    - name: Checkout
+      uses: actions/checkout@v1
+      with:
+        ref: master
+
+    - name: Check Update and Open Issues
+      run: python3 check.py
+
+    - name: Set git profile
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+    - name: Commit PR comments JSON
+      # Fails if nothing is updated
+      continue-on-error: true
+      run: |
+        git add status.json
+        git commit -m "Update Status"
+    - name: Push
+      continue-on-error: true
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: pr-comments
+        force: false

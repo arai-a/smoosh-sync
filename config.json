@@ -1,0 +1,7 @@
+{
+  "hg_api_url": "https://hg.mozilla.org/mozilla-central/",
+  "github_api_url": "https://api.github.com/repos/arai-a/smoosh-sync/",
+  "files": [
+    "/js/src/vm/Opcodes.h"
+  ]
+}
