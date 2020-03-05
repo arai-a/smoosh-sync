@@ -1,8 +1,12 @@
 name: Check Update
 
+#on:
+#  push:
+#    branches: master
+
 on:
-  push:
-    branches: master
+  schedule:
+    - cron: '0 0 * * *'
 
 jobs:
   check:
