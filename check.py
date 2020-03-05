@@ -102,6 +102,7 @@ class RemoteRepository:
         p = subprocess.Popen(['diff', '-U', '8',
                               '--label', '{}{}'.format(rev1, path),
                               '--label', '{}{}'.format(rev2, path),
+                              '-p',
                               name1, name2],
                              stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT,
@@ -223,7 +224,8 @@ class IssueOpener:
 
         latest_node = None
 
-        for changeset in sorted(total_changesets, key=lambda changeset: changeset['pushdate'][0]):
+        for changeset in sorted(total_changesets,
+                                key=lambda c: c['pushdate'][0]):
             if latest_node is None:
                 latest_node = changeset['node']
             subject = cls.linkify(changeset['desc'].split('\n')[0])
