@@ -228,10 +228,11 @@ class IssueOpener:
                                 key=lambda c: c['pushdate'][0]):
             if latest_node is None:
                 latest_node = changeset['node']
-            subject = cls.linkify(changeset['desc'].split('\n')[0])
-            contents.append('* {}  '.format(subject))
+
             url = RemoteRepository.get_rev_url(changeset['node'])
-            contents.append('  {}'.format(url))
+            contents.append('* {}'.format(url))
+            subject = cls.linkify(changeset['desc'].split('\n')[0])
+            contents.append('  {}  '.format(subject))
 
         contents.append('')
         contents.append('# Diffs')
