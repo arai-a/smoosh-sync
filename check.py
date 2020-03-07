@@ -217,6 +217,7 @@ class IssueOpener:
 
         if len(paths) == 0:
             Logger.info('No changes')
+            return
 
         contents.append('')
         contents.append('# Changesets')
