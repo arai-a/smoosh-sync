@@ -49,6 +49,8 @@
     "/js/src/frontend/PropOpEmitter.cpp",
     "/js/src/frontend/PropOpEmitter.h",
     "/js/src/frontend/SourceNotes.h",
+    "/js/src/frontend/Stencil.cpp",
+    "/js/src/frontend/Stencil.h",
     "/js/src/frontend/SwitchEmitter.cpp",
     "/js/src/frontend/SwitchEmitter.h",
     "/js/src/frontend/TryEmitter.cpp",
@@ -58,6 +60,7 @@
     "/js/src/vm/BytecodeUtil-inl.h",
     "/js/src/vm/BytecodeUtil.cpp",
     "/js/src/vm/BytecodeUtil.h",
-    "/js/src/vm/Opcodes.h"
+    "/js/src/vm/Opcodes.h",
+    "/js/src/vm/SharedStencil.h"
   ]
 }
