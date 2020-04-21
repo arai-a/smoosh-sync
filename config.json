@@ -61,6 +61,9 @@
     "/js/src/vm/BytecodeUtil.cpp",
     "/js/src/vm/BytecodeUtil.h",
     "/js/src/vm/Opcodes.h",
-    "/js/src/vm/SharedStencil.h"
+    "/js/src/vm/Scope.cpp",
+    "/js/src/vm/Scope.h",
+    "/js/src/vm/SharedStencil.h",
+    "/js/src/vm/StencilEnums.h"
   ]
 }
