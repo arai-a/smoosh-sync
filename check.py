@@ -253,15 +253,21 @@ class IssueOpener:
 
         body = '\n'.join(contents)
 
+        opcodes_path = '/js/src/vm/Opcodes.h'
+        if opcodes_path in paths:
+            main_path = opcodes_path
+        else:
+            main_path = paths[0]
+
         if len(paths) > 2:
             title = '{} and {} more files have been updated'.format(
-                paths[0], len(paths) - 1)
+                main_path, len(paths) - 1)
         elif len(paths) == 2:
             title = '{} and one more file have been updated'.format(
-                paths[0])
+                main_path)
         else:
             title = '{} has been updated'.format(
-                paths[0])
+                main_path)
 
         Logger.info('Opening Issue')
 
