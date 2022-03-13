@@ -269,10 +269,14 @@ class IssueOpener:
             title = '{} has been updated'.format(
                 main_path)
 
+        title = '{} ({})'.format(title, latest_node[0:8])
+
         Logger.info('Opening Issue')
+        Logger.info('title: ${title}')
+        Logger.info('body: ${body}')
 
         GitHubAPI.post('issues', [], {
-            'title': '{} ({})'.format(title, latest_node[0:8]),
+            'title': title,
             'body': body,
         })
 
