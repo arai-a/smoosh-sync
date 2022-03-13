@@ -272,8 +272,8 @@ class IssueOpener:
         title = '{} ({})'.format(title, latest_node[0:8])
 
         Logger.info('Opening Issue')
-        Logger.info('title: ${title}')
-        Logger.info('body: ${body}')
+        Logger.info('title: {}'.format(title))
+        Logger.info('body: {}'.format(body))
 
         GitHubAPI.post('issues', [], {
             'title': title,
