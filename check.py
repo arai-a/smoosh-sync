@@ -249,7 +249,7 @@ class IssueOpener:
             contents.append("""
 ```
 {}```
-""".format(diff))
+""".format(diff.replace('&', '&amp;')))
 
         body = '\n'.join(contents)
 
