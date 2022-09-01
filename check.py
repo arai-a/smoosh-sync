@@ -253,6 +253,9 @@ class IssueOpener:
 
         body = '\n'.join(contents)
 
+        if len(body) > 60000:
+            body = body[0:60000] + "\n(comment length limit exceeeded)"
+
         opcodes_path = '/js/src/vm/Opcodes.h'
         if opcodes_path in paths:
             main_path = opcodes_path
@@ -274,8 +277,6 @@ class IssueOpener:
         Logger.info('Opening Issue')
         Logger.info('title: {}'.format(title))
         Logger.info('body: {}'.format(body))
-
-        body = body[0:65000]
 
         GitHubAPI.post('issues', [], {
             'title': title,
