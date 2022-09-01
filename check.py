@@ -283,8 +283,6 @@ class IssueOpener:
             'body': body,
         })
 
-        raise "error"
-
 
 result = UpdateChecker.check()
 IssueOpener.open(result)
