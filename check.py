@@ -249,7 +249,7 @@ class IssueOpener:
             contents.append("""
 ```
 {}```
-""".format(diff.replace('&', '&amp;')))
+""".format(diff))
 
         body = '\n'.join(contents)
 
@@ -275,10 +275,14 @@ class IssueOpener:
         Logger.info('title: {}'.format(title))
         Logger.info('body: {}'.format(body))
 
+        body = body[0:65000]
+
         GitHubAPI.post('issues', [], {
             'title': title,
             'body': body,
         })
+
+        raise "error"
 
 
 result = UpdateChecker.check()
